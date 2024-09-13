@@ -1069,7 +1069,8 @@ public class RuntimeServiceTest extends FlowableCmmnTestCase {
         cmmnRuntimeService.setVariable(caseInstance.getId(), "caseVar", "test");
         cmmnRuntimeService.setLocalVariable(planItemInstance.getId(), "localVar", "test");
 
-        assertThat(cmmnRuntimeService.createVariableInstanceQuery().list())
+        assertThat(cmmnRuntimeService.createVariableInstanceQuery()
+                .list())
                 .extracting(VariableInstance::getName)
                 .containsExactlyInAnyOrder("caseVar", "localVar");
 
@@ -1078,6 +1079,44 @@ public class RuntimeServiceTest extends FlowableCmmnTestCase {
         assertThat(cmmnRuntimeService.createVariableInstanceQuery().list())
                 .extracting(VariableInstance::getName)
                 .isEmpty();
+    }
+
+    @Test
+    @CmmnDeployment(resources = "org/flowable/cmmn/test/runtime/oneHumanTaskCase.cmmn")
+    public void testVariableInstanceQueryWithMultipleCaseInstances() {
+        CaseInstance caseInstanceOne = cmmnRuntimeService.createCaseInstanceBuilder()
+                .caseDefinitionKey("oneHumanTaskCase")
+                .variable("caseVarOne", "testOne")
+                .start();
+
+        CaseInstance caseInstanceTwo = cmmnRuntimeService.createCaseInstanceBuilder()
+                .caseDefinitionKey("oneHumanTaskCase")
+                .variable("caseVarTwo", "testTwo")
+                .start();
+
+        List<VariableInstance> varibaleInstances = cmmnRuntimeService.createVariableInstanceQuery()
+                .caseInstanceIds(Set.of(caseInstanceOne.getId(), caseInstanceTwo.getId()))
+                .list();
+
+        assertThat(varibaleInstances)
+                .extracting(VariableInstance::getName)
+                .isNotEmpty();
+
+        for (VariableInstance varibaleInstance : varibaleInstances) {
+            if (varibaleInstance.getScopeId().equals(caseInstanceOne.getId())) {
+                assertThat(varibaleInstance.getTextValue()).isEqualTo("testOne");
+            } else if (varibaleInstance.getScopeId().equals(caseInstanceTwo.getId())) {
+                assertThat(varibaleInstance.getTextValue()).isEqualTo("testTwo");
+            }
+        }
+
+        List<VariableInstance> specificVaribaleInstances = cmmnRuntimeService.createVariableInstanceQuery()
+                .caseInstanceIds(Set.of(caseInstanceOne.getId(), caseInstanceTwo.getId()))
+                .variableName("caseVarTwo")
+                .list();
+
+        assertThat(specificVaribaleInstances.size()).isEqualTo(1);
+
     }
     
     @Test
