@@ -1069,7 +1069,8 @@ public class RuntimeServiceTest extends FlowableCmmnTestCase {
         cmmnRuntimeService.setVariable(caseInstance.getId(), "caseVar", "test");
         cmmnRuntimeService.setLocalVariable(planItemInstance.getId(), "localVar", "test");
 
-        assertThat(cmmnRuntimeService.createVariableInstanceQuery().list())
+        assertThat(cmmnRuntimeService.createVariableInstanceQuery()
+                .list())
                 .extracting(VariableInstance::getName)
                 .containsExactlyInAnyOrder("caseVar", "localVar");
 
@@ -1078,6 +1079,35 @@ public class RuntimeServiceTest extends FlowableCmmnTestCase {
         assertThat(cmmnRuntimeService.createVariableInstanceQuery().list())
                 .extracting(VariableInstance::getName)
                 .isEmpty();
+    }
+
+    @Test
+    @CmmnDeployment(resources = "org/flowable/cmmn/test/runtime/oneHumanTaskCase.cmmn")
+    public void testVariableInstanceQueryWithMultipleCaseInstances() {
+        CaseInstance caseInstanceOne = cmmnRuntimeService.createCaseInstanceBuilder()
+                .caseDefinitionKey("oneHumanTaskCase")
+                .variable("caseVarOne", "testOne")
+                .start();
+
+        CaseInstance caseInstanceTwo = cmmnRuntimeService.createCaseInstanceBuilder()
+                .caseDefinitionKey("oneHumanTaskCase")
+                .variable("caseVarTwo", "testTwo")
+                .start();
+
+        assertThat(cmmnRuntimeService.createVariableInstanceQuery()
+                .caseInstanceIds(Set.of(caseInstanceOne.getId(), caseInstanceTwo.getId()))
+                .list())
+                .extracting(VariableInstance::getName, VariableInstance::getTextValue, VariableInstance::getScopeId)
+                .containsExactlyInAnyOrder(
+                        tuple("caseVarOne", "testOne", caseInstanceOne.getId()),
+                        tuple("caseVarTwo", "testTwo", caseInstanceTwo.getId())
+                );
+
+        assertThat(cmmnRuntimeService.createVariableInstanceQuery()
+                .caseInstanceIds(Set.of(caseInstanceOne.getId(), caseInstanceTwo.getId()))
+                .variableName("caseVarTwo")
+                .list()).hasSize(1);
+
     }
     
     @Test

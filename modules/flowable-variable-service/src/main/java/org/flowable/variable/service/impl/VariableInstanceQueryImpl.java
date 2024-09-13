@@ -50,6 +50,7 @@ public class VariableInstanceQueryImpl extends AbstractQuery<VariableInstanceQue
     protected boolean excludeTaskRelated;
     protected boolean excludeVariableInitialization;
     protected String scopeId;
+    protected Set<String> scopeIds;
     protected String subScopeId;
     protected String scopeType;
     protected QueryVariableValue queryVariableValue;
@@ -239,6 +240,12 @@ public class VariableInstanceQueryImpl extends AbstractQuery<VariableInstanceQue
     @Override
     public VariableInstanceQuery scopeId(String scopeId) {
         this.scopeId = scopeId;
+        return this;
+    }
+
+    @Override
+    public VariableInstanceQuery scopeIds(Set<String> scopeIds) {
+        this.scopeIds = scopeIds;
         return this;
     }
     

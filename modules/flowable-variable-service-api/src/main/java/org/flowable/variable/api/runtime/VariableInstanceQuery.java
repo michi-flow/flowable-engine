@@ -78,6 +78,11 @@ public interface VariableInstanceQuery extends Query<VariableInstanceQuery, Vari
      * Only select historic variables with the given scope id.
      */
     VariableInstanceQuery scopeId(String scopeId);
+
+    /**
+     * Only select historic variables with the given scope ids.
+     */
+    VariableInstanceQuery scopeIds(Set<String> scopeIds);
     
     /**
      * Only select historic variables with the given sub scope id.

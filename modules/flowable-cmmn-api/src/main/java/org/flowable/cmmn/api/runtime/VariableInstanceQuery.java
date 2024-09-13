@@ -27,6 +27,9 @@ public interface VariableInstanceQuery extends Query<VariableInstanceQuery, Vari
 
     /** Only select historic variables with the given case instance. */
     VariableInstanceQuery caseInstanceId(String caseInstanceId);
+
+    /** Only select historic variables with the given case instances. */
+    VariableInstanceQuery caseInstanceIds(Set<String> caseInstanceIds);
     
     /** Only select historic variables with the given plan item instance id. */
     VariableInstanceQuery planItemInstanceId(String planItemInstanceId);

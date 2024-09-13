@@ -49,6 +49,13 @@ public class CmmnVariableInstanceQueryImpl implements VariableInstanceQuery {
         wrappedVariableInstanceQuery.scopeType(ScopeTypes.CMMN);
         return this;
     }
+
+    @Override
+    public VariableInstanceQuery caseInstanceIds(Set<String> caseInstanceIds) {
+        wrappedVariableInstanceQuery.scopeIds(caseInstanceIds);
+        wrappedVariableInstanceQuery.scopeType(ScopeTypes.CMMN);
+        return this;
+    }
     
     @Override
     public VariableInstanceQuery planItemInstanceId(String planItemInstanceId) {
