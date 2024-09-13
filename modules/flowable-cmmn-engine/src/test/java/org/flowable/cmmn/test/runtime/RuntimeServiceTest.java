@@ -1094,28 +1094,19 @@ public class RuntimeServiceTest extends FlowableCmmnTestCase {
                 .variable("caseVarTwo", "testTwo")
                 .start();
 
-        List<VariableInstance> varibaleInstances = cmmnRuntimeService.createVariableInstanceQuery()
+        assertThat(cmmnRuntimeService.createVariableInstanceQuery()
                 .caseInstanceIds(Set.of(caseInstanceOne.getId(), caseInstanceTwo.getId()))
-                .list();
+                .list())
+                .extracting(VariableInstance::getName, VariableInstance::getTextValue, VariableInstance::getScopeId)
+                .containsExactlyInAnyOrder(
+                        tuple("caseVarOne", "testOne", caseInstanceOne.getId()),
+                        tuple("caseVarTwo", "testTwo", caseInstanceTwo.getId())
+                );
 
-        assertThat(varibaleInstances)
-                .extracting(VariableInstance::getName)
-                .isNotEmpty();
-
-        for (VariableInstance varibaleInstance : varibaleInstances) {
-            if (varibaleInstance.getScopeId().equals(caseInstanceOne.getId())) {
-                assertThat(varibaleInstance.getTextValue()).isEqualTo("testOne");
-            } else if (varibaleInstance.getScopeId().equals(caseInstanceTwo.getId())) {
-                assertThat(varibaleInstance.getTextValue()).isEqualTo("testTwo");
-            }
-        }
-
-        List<VariableInstance> specificVaribaleInstances = cmmnRuntimeService.createVariableInstanceQuery()
+        assertThat(cmmnRuntimeService.createVariableInstanceQuery()
                 .caseInstanceIds(Set.of(caseInstanceOne.getId(), caseInstanceTwo.getId()))
                 .variableName("caseVarTwo")
-                .list();
-
-        assertThat(specificVaribaleInstances.size()).isEqualTo(1);
+                .list()).hasSize(1);
 
     }
     
